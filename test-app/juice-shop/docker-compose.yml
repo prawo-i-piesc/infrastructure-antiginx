@@ -1,0 +1,15 @@
+services:
+  juice-shop:
+    image: bkimminich/juice-shop
+    container_name: juice-shop
+    restart: unless-stopped
+
+    ports:
+      - "${JUICE_SHOP_PORT}:3000"
+
+    networks:
+      - antiginx-net
+
+networks:
+  antiginx-net:
+    external: true

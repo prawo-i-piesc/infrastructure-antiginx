@@ -1,0 +1,28 @@
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    restart: unless-stopped
+
+    ports:
+      - "${RABBITMQ_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+
+    environment:
+      RABBITMQ_DEFAULT_USER: "${RABBITMQ_DEFAULT_USER}"
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_DEFAULT_PASS}"
+
+    volumes:
+      - type: bind
+        source: ./data
+        target: /var/lib/rabbitmq
+        read_only: false
+        bind:
+          create_host_path: true
+
+    networks:
+      - antiginx-net
+
+networks:
+  antiginx-net:
+    external: true
