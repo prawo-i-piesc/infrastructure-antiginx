@@ -9,10 +9,7 @@ spec:
     matchLabels:
       app: postgres
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 1
-      maxSurge: 1
+    type: Recreate
   template:
     metadata:
       labels:
