@@ -10,3 +10,4 @@ resources:
   - rabbitmq/pvc.yaml
   - rabbitmq/deployment.yaml
   - rabbitmq/service.yaml
+  - rabbitmq/service-external.yaml

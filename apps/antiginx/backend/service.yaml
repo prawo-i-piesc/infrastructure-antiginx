@@ -4,9 +4,10 @@ metadata:
   name: backend-service
   namespace: antiginx
 spec:
+  type: ClusterIP
   selector:
     app: backend
   ports:
-    - port: 4000
+    - name: backend-port
+      port: 4000
       targetPort: 4000
-  type: ClusterIP

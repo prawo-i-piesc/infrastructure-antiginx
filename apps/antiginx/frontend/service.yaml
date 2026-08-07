@@ -4,9 +4,10 @@ metadata:
   name: frontend-service
   namespace: antiginx
 spec:
+  type: LoadBalancer
   selector:
     app: frontend
   ports:
-    - port: 3000
+    - name: frontend-port
+      port: 3000
       targetPort: 3000
-  type: ClusterIP

@@ -4,9 +4,10 @@ metadata:
   name: engine-service
   namespace: antiginx
 spec:
+  type: ClusterIP
   selector:
     app: engine
   ports:
-    - port: 5000
+    - name: engine-port
+      port: 5000
       targetPort: 5000
-  type: ClusterIP
