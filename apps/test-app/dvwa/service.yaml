@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dvwa-service
+  namespace: test-app
+spec:
+  type: ClusterIP
+  selector:
+    app: dvwa
+  ports:
+    - name: dvwa-port
+      port: 80
+      targetPort: 80
