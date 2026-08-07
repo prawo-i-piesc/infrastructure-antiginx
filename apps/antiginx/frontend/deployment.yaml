@@ -29,11 +29,11 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
           env:
-            - name: NEXT_PUBLIC_BACKEND_URL
+            - name: BACKEND_URL
               valueFrom:
                 secretKeyRef:
                   name: antiginx-secrets
-                  key: NEXT_PUBLIC_BACKEND_URL
+                  key: BACKEND_URL
           resources:
             requests:
               memory: "128Mi"
