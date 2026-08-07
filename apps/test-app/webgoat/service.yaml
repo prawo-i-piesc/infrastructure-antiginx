@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: webgoat-service
+  namespace: test-app
+spec:
+  type: ClusterIP
+  selector:
+    app: webgoat
+  ports:
+    - name: webgoat-web-port
+      port: 8080
+      targetPort: 8080
+    - name: webgoat-webwolf-port
+      port: 9090
+      targetPort: 9090

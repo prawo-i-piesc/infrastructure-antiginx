@@ -5,3 +5,7 @@ resources:
   - namespace.yaml
   - juice-shop/deployment.yaml
   - juice-shop/service.yaml
+  - webgoat/deployment.yaml
+  - webgoat/service.yaml
+  - dvwa/deployment.yaml
+  - dvwa/service.yaml

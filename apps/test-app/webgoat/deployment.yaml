@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webgoat-deployment
+  namespace: test-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webgoat
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: webgoat
+    spec:
+      containers:
+        - name: webgoat
+          image: webgoat/webgoat:v2025.3
+          ports:
+            - containerPort: 8080
+            - containerPort: 9090
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
