@@ -1,4 +1,10 @@
 # ------------------------------------------
+# 0. Infrastructure .gitignore
+# ------------------------------------------
+apps/antiginx/antiginx-secret.yaml
+apps/data/data-secret.yaml
+
+# ------------------------------------------
 # 1. System Files and OS Artifacts
 # ------------------------------------------
 # macOS
