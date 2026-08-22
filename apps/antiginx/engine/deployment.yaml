@@ -23,11 +23,6 @@ spec:
           image: ghcr.io/prawo-i-piesc/engine-antiginx:latest
           ports:
             - containerPort: 5000
-          readinessProbe:
-            tcpSocket:
-              port: 5000
-            initialDelaySeconds: 30
-            periodSeconds: 10
           env:
             - name: BACK_URL
               valueFrom:

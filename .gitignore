@@ -3,6 +3,8 @@
 # ------------------------------------------
 apps/antiginx/antiginx-secret.yaml
 apps/data/data-secret.yaml
+apps/monitoring/charts/
+apps/monitoring/monitoring-secrets.yaml
 
 # ------------------------------------------
 # 1. System Files and OS Artifacts
