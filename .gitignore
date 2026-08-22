@@ -1,10 +1,10 @@
 # ------------------------------------------
 # 0. Infrastructure .gitignore
 # ------------------------------------------
-apps/antiginx/antiginx-secret.yaml
-apps/data/data-secret.yaml
-apps/monitoring/charts/
+apps/antiginx/antiginx-secrets.yaml
+apps/data/data-secrets.yaml
 apps/monitoring/monitoring-secrets.yaml
+apps/monitoring/charts/
 
 # ------------------------------------------
 # 1. System Files and OS Artifacts

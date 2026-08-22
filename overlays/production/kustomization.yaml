@@ -3,6 +3,8 @@ kind: Kustomization
 resources:
   - ../../apps/antiginx
   - ../../apps/data
+  - ../../apps/monitoring
+
 images:
   - name: ghcr.io/prawo-i-piesc/backend-antiginx
     newTag: v0.6.13

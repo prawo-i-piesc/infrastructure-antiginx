@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dvwa-deployment
-  namespace: test-app
+  name: juice-shop-deployment
+  namespace: scan-targets
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dvwa
+      app: juice-shop
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -16,13 +16,13 @@ spec:
   template:
     metadata:
       labels:
-        app: dvwa
+        app: juice-shop
     spec:
       containers:
-        - name: dvwa
-          image: kaakaww/dvwa-docker:latest
+        - name: juice-shop
+          image: bkimminich/juice-shop:v19.2.1
           ports:
-            - containerPort: 80
+            - containerPort: 3000
           resources:
             requests:
               memory: "128Mi"
