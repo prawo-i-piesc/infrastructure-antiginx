@@ -4,7 +4,8 @@ resources:
   - ../../apps/antiginx
   - ../../apps/data
   - ../../apps/monitoring
-  - ../../apps/test-app
+  - ../../apps/scan-targets
+
 images:
   - name: ghcr.io/prawo-i-piesc/backend-antiginx
     newTag: latest
