@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: webgoat-service
-  namespace: test-app
+  namespace: scan-targets
 spec:
   type: ClusterIP
   selector:

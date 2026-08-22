@@ -3,7 +3,7 @@ kind: Kustomization
 namespace: data
 resources:
   - namespace.yaml
-  - data-secret.yaml
+  - data-secrets.yaml
   - postgres/pvc.yaml
   - postgres/deployment.yaml
   - postgres/service.yaml

@@ -3,7 +3,7 @@ kind: Kustomization
 namespace: antiginx
 resources:
   - namespace.yaml
-  - antiginx-secret.yaml
+  - antiginx-secrets.yaml
   - backend/deployment.yaml
   - backend/service.yaml
   - engine/deployment.yaml
