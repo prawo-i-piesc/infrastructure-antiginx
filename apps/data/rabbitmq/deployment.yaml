@@ -44,5 +44,6 @@ spec:
               cpu: "500m"
       volumes:
         - name: rabbitmq-data
-          persistentVolumeClaim:
-            claimName: rabbitmq-pvc
+          hostPath:
+            path: /home/debian/data-antiginx/rabbitmq-data
+            type: DirectoryOrCreate

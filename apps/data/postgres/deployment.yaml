@@ -48,5 +48,6 @@ spec:
               cpu: "500m"
       volumes:
         - name: postgres-data
-          persistentVolumeClaim:
-            claimName: postgres-pvc
+          hostPath:
+            path: /home/debian/data-antiginx/postgres-data
+            type: DirectoryOrCreate
