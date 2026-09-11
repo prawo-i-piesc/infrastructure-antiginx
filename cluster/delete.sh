@@ -22,7 +22,7 @@ echo "🔥 Start clearing the cluster..."
 echo ""
 
 sudo KUBECONFIG=/etc/rancher/k3s/k3s.yaml kapp delete -a "antiginx-${ENV}" -y
-sudo kubectl delete namespace monitoring antiginx data scan-targets-dev --ignore-not-found
+sudo kubectl delete namespace monitoring antiginx data scan-targets --ignore-not-found
 
 echo ""
 echo "✅ Everything deleted! The cluster is completely clean."

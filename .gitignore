@@ -1,10 +1,7 @@
 # ------------------------------------------
 # 0. Infrastructure .gitignore
 # ------------------------------------------
-apps/antiginx/antiginx-secrets.yaml
-apps/data/data-secrets.yaml
-apps/monitoring/monitoring-secrets.yaml
-components/data/data-secrets-dev.yaml
+*-secrets.yaml
 apps/monitoring/charts/
 
 # ------------------------------------------
