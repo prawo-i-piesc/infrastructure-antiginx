@@ -1,12 +1,13 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - secrets
   - ../../apps/antiginx
   - ../../apps/data
   - ../../apps/monitoring
-  - ../../components/scan-targets
-  - ../../components/data
-  - ../../components/data/rabbitmq
+  - ../../addons/scan-targets
+  - ../../addons/pgadmin
+  - ../../addons/rabbitmq-management
 
 images:
   - name: ghcr.io/prawo-i-piesc/engine-antiginx
