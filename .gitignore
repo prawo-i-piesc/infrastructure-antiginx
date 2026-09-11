@@ -4,6 +4,7 @@
 apps/antiginx/antiginx-secrets.yaml
 apps/data/data-secrets.yaml
 apps/monitoring/monitoring-secrets.yaml
+components/data/data-secrets-dev.yaml
 apps/monitoring/charts/
 
 # ------------------------------------------

@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: dvwa-deployment
-  namespace: scan-targets
+  name: webgoat-deployment
+  namespace: scan-targets-dev
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dvwa
+      app: webgoat
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -16,13 +16,14 @@ spec:
   template:
     metadata:
       labels:
-        app: dvwa
+        app: webgoat
     spec:
       containers:
-        - name: dvwa
-          image: kaakaww/dvwa-docker:latest
+        - name: webgoat
+          image: webgoat/webgoat:v2025.3
           ports:
-            - containerPort: 80
+            - containerPort: 8080
+            - containerPort: 9090
           resources:
             requests:
               memory: "128Mi"
