@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webgoat-deployment
-  namespace: scan-targets
+  name: juice-shop-deployment
+  namespace: scan-targets-dev
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: webgoat
+      app: juice-shop
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -16,14 +16,13 @@ spec:
   template:
     metadata:
       labels:
-        app: webgoat
+        app: juice-shop
     spec:
       containers:
-        - name: webgoat
-          image: webgoat/webgoat:v2025.3
+        - name: juice-shop
+          image: bkimminich/juice-shop:v19.2.1
           ports:
-            - containerPort: 8080
-            - containerPort: 9090
+            - containerPort: 3000
           resources:
             requests:
               memory: "128Mi"

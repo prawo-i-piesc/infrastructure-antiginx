@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pgadmin-deployment
-  namespace: data
+  namespace: data-dev
 spec:
   replicas: 1
   selector:
@@ -28,12 +28,12 @@ spec:
             - name: PGADMIN_DEFAULT_EMAIL
               valueFrom:
                 secretKeyRef:
-                  name: data-secrets
+                  name: data-secrets-dev
                   key: PGADMIN_DEFAULT_EMAIL
             - name: PGADMIN_DEFAULT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: data-secrets
+                  name: data-secrets-dev
                   key: PGADMIN_DEFAULT_PASSWORD
           resources:
             requests:
