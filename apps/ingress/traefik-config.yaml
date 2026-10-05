@@ -1,0 +1,17 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    persistence:
+      enabled: true
+    envFrom:
+      - secretRef:
+          name: traefik-acme-secrets
+    additionalArguments:
+      - --certificatesresolvers.letsencrypt.acme.email=$(ACME_EMAIL)
+      - --certificatesresolvers.letsencrypt.acme.storage=/data/acme.json
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=ovh
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53

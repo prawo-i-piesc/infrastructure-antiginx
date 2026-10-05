@@ -7,9 +7,8 @@ grafana:
   grafana.ini:
     date_formats:
       default_timezone: browser
-  service:
-    type: NodePort
-    nodePort: 32000
+    server:
+      root_url: https://grafana.antiginx.karwowski.dev
   sidecar:
     datasources:
       url: "http://prometheus-operated.monitoring:9090"
