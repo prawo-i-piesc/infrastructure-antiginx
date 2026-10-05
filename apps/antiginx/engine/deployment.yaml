@@ -39,6 +39,11 @@ spec:
                 secretKeyRef:
                   name: antiginx-secrets
                   key: ENGINE_ANTIGINX_CALL
+            - name: ANTIGINX_RDAP_URL
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: ANTIGINX_RDAP_URL
           resources:
             requests:
               memory: "128Mi"

@@ -34,6 +34,16 @@ spec:
                 secretKeyRef:
                   name: antiginx-secrets
                   key: BACKEND_URL
+            - name: TRUST_PROXY_HEADERS
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: TRUST_PROXY_HEADERS
+            - name: COOKIE_SECURE
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: COOKIE_SECURE
           resources:
             requests:
               memory: "128Mi"
