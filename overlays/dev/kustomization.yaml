@@ -11,8 +11,8 @@ resources:
 
 images:
   - name: ghcr.io/prawo-i-piesc/engine-antiginx
-    newTag: latest
+    newTag: 0.6.21
   - name: ghcr.io/prawo-i-piesc/backend-antiginx
-    newTag: latest
+    newTag: 0.6.15
   - name: ghcr.io/prawo-i-piesc/frontend-antiginx
-    newTag: latest
+    newTag: 0.6.16

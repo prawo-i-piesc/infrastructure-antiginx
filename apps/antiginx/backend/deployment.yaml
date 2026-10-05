@@ -49,16 +49,17 @@ spec:
                 secretKeyRef:
                   name: antiginx-secrets
                   key: TOTP_ENCRYPTION_KEY
-            - name: PUBLIC_BASE_UR
+            - name: PUBLIC_BASE_URL
               valueFrom:
                 secretKeyRef:
                   name: antiginx-secrets
-                  key: PUBLIC_BASE_UR
+                  key: PUBLIC_BASE_URL
             - name: COOKIE_SECURE
               valueFrom:
                 secretKeyRef:
                   name: antiginx-secrets
                   key: COOKIE_SECURE
+                  optional: true
             - name: GOOGLE_CLIENT_ID
               valueFrom:
                 secretKeyRef:
@@ -84,6 +85,7 @@ spec:
                 secretKeyRef:
                   name: antiginx-secrets
                   key: MAIL_TRANSPORT
+                  optional: true
             - name: MAIL_FROM
               valueFrom:
                 secretKeyRef:

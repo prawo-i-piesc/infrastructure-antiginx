@@ -39,11 +39,13 @@ spec:
                 secretKeyRef:
                   name: antiginx-secrets
                   key: TRUST_PROXY_HEADERS
+                  optional: true
             - name: COOKIE_SECURE
               valueFrom:
                 secretKeyRef:
                   name: antiginx-secrets
                   key: COOKIE_SECURE
+                  optional: true
           resources:
             requests:
               memory: "128Mi"
