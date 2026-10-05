@@ -44,6 +44,56 @@ spec:
                 secretKeyRef:
                   name: antiginx-secrets
                   key: JWT_SECRET
+            - name: TOTP_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: TOTP_ENCRYPTION_KEY
+            - name: PUBLIC_BASE_UR
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: PUBLIC_BASE_UR
+            - name: COOKIE_SECURE
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: COOKIE_SECURE
+            - name: GOOGLE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: GOOGLE_CLIENT_ID
+            - name: GOOGLE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: GOOGLE_CLIENT_SECRET
+            - name: GITHUB_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: GITHUB_CLIENT_ID
+            - name: GITHUB_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: GITHUB_CLIENT_SECRET
+            - name: MAIL_TRANSPORT
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: MAIL_TRANSPORT
+            - name: MAIL_FROM
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: MAIL_FROM
+            - name: RESEND_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: RESEND_API_KEY
           resources:
             requests:
               memory: "128Mi"
