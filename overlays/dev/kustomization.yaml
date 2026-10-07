@@ -5,6 +5,7 @@ resources:
   - ../../apps/antiginx
   - ../../apps/data
   - ../../apps/monitoring
+  - ../../apps/ingress
   - ../../addons/scan-targets
   - ../../addons/pgadmin
   - ../../addons/rabbitmq-management
