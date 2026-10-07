@@ -1,0 +1,22 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    env:
+      - name: DUCKDNS_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: traefik-secrets
+            key: DUCKDNS_TOKEN
+    persistence:
+      enabled: true
+      path: /data
+      size: 128Mi
+    additionalArguments:
+      - --certificatesresolvers.letsencrypt.acme.email=$(ACME_EMAIL)
+      - --certificatesresolvers.letsencrypt.acme.storage=/data/acme.json
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=duckdns
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53

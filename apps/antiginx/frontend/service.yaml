@@ -4,7 +4,7 @@ metadata:
   name: frontend-service
   namespace: antiginx
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: frontend
   ports:
