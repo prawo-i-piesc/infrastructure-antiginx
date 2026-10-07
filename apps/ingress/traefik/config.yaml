@@ -11,6 +11,16 @@ spec:
           secretKeyRef:
             name: traefik-secrets
             key: DUCKDNS_TOKEN
+      - name: ACME_EMAIL
+        valueFrom:
+          secretKeyRef:
+            name: traefik-secrets
+            key: ACME_EMAIL
+      - name: BASE_DOMAIN
+        valueFrom:
+          secretKeyRef:
+            name: traefik-secrets
+            key: BASE_DOMAIN
     persistence:
       enabled: true
       path: /data
@@ -20,3 +30,7 @@ spec:
       - --certificatesresolvers.letsencrypt.acme.storage=/data/acme.json
       - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=duckdns
       - --certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53
+      - --entrypoints.websecure.http.tls.certresolver=letsencrypt
+      - --entrypoints.websecure.http.tls.domains[0].main=*.$(BASE_DOMAIN)
+      - --entrypoints.web.http.redirections.entrypoint.to=:443
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
