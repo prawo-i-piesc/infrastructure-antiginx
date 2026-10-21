@@ -8,8 +8,7 @@ grafana:
     date_formats:
       default_timezone: browser
   service:
-    type: NodePort
-    nodePort: 32000
+    type: ClusterIP
   sidecar:
     datasources:
       url: "http://prometheus-operated.monitoring:9090"

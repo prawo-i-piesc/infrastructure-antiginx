@@ -5,6 +5,7 @@ resources:
   - ../../apps/antiginx
   - ../../apps/data
   - ../../apps/monitoring
+  - ../../apps/ingress
   - ../../addons/scan-targets
   - ../../addons/pgadmin
   - ../../addons/rabbitmq-management
@@ -16,3 +17,13 @@ images:
     newTag: 0.6.15
   - name: ghcr.io/prawo-i-piesc/frontend-antiginx
     newTag: 0.6.16
+
+patches:
+  - path: patches/frontend-ingress.yaml
+    target:
+      kind: Ingress
+      name: frontend-ingress
+  - path: patches/kube-prometheus-stack-ingress.yaml
+    target:
+      kind: Ingress
+      name: grafana-ingress

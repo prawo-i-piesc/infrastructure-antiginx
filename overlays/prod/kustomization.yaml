@@ -5,6 +5,7 @@ resources:
   - ../../apps/antiginx
   - ../../apps/data
   - ../../apps/monitoring
+  - ../../apps/ingress
 
 images:
   - name: ghcr.io/prawo-i-piesc/engine-antiginx
