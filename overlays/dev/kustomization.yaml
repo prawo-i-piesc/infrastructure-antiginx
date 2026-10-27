@@ -9,6 +9,18 @@ resources:
   - ../../addons/pgadmin
   - ../../addons/rabbitmq-management
 
+patches:
+  - path: patches/frontend-ingress.yaml
+    target:
+      kind: Ingress
+      name: frontend-ingress
+      namespace: antiginx
+  - path: patches/kube-prometheus-stack-ingress.yaml
+    target:
+      kind: Ingress
+      name: grafana-ingress
+      namespace: monitoring
+
 images:
   - name: ghcr.io/prawo-i-piesc/daemon-antiginx
     newTag: 0.0.15
