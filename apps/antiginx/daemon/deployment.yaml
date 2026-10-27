@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: engine-deployment
+  name: daemon-deployment
   namespace: antiginx
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: engine
+      app: daemon
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -16,11 +16,11 @@ spec:
   template:
     metadata:
       labels:
-        app: engine
+        app: daemon
     spec:
       containers:
-        - name: engine
-          image: ghcr.io/prawo-i-piesc/engine-antiginx:latest
+        - name: daemon
+          image: ghcr.io/prawo-i-piesc/daemon-antiginx:latest
           ports:
             - containerPort: 5000
           env:
@@ -39,12 +39,21 @@ spec:
                 secretKeyRef:
                   name: antiginx-secrets
                   key: ENGINE_ANTIGINX_CALL
-            - name: ANTIGINX_RDAP_URL
+            - name: PROMETHEUS_PORT
               valueFrom:
                 secretKeyRef:
                   name: antiginx-secrets
-                  key: ANTIGINX_RDAP_URL
-                  optional: true
+                  key: PROMETHEUS_PORT
+            - name: RABBITMQ_QUEUE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: RABBITMQ_QUEUE_NAME
+            - name: RABBITMQ_RESULTS_QUEUE
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: RABBITMQ_RESULTS_QUEUE
           resources:
             requests:
               memory: "128Mi"

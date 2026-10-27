@@ -8,9 +8,9 @@ resources:
   - ../../apps/ingress
 
 images:
-  - name: ghcr.io/prawo-i-piesc/engine-antiginx
-    newTag: 0.6.16
+  - name: ghcr.io/prawo-i-piesc/daemon-antiginx
+    newTag: 0.0.15
   - name: ghcr.io/prawo-i-piesc/backend-antiginx
-    newTag: 0.6.10
+    newTag: 0.6.16
   - name: ghcr.io/prawo-i-piesc/frontend-antiginx
-    newTag: 0.6.14
+    newTag: 0.6.21
