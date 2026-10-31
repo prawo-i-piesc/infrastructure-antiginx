@@ -102,6 +102,30 @@ spec:
                 secretKeyRef:
                   name: antiginx-secrets
                   key: RESEND_API_KEY
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: STRIPE_SECRET_KEY
+                  optional: true
+            - name: STRIPE_PRO_PRICE_ID
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: STRIPE_PRO_PRICE_ID
+                  optional: true
+            - name: STRIPE_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: STRIPE_WEBHOOK_SECRET
+                  optional: true
+            - name: STRIPE_SYNC_INTERVAL
+              valueFrom:
+                secretKeyRef:
+                  name: antiginx-secrets
+                  key: STRIPE_SYNC_INTERVAL
+                  optional: true
           resources:
             requests:
               memory: "128Mi"
