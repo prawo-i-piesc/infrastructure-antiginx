@@ -11,4 +11,4 @@ spec:
     - name: pgadmin-port
       protocol: TCP
       port: 33000
-      targetPort: 80
+      targetPort: 8080
