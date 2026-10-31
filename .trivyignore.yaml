@@ -1,0 +1,7 @@
+misconfigurations:
+  - id: KSV-0014
+    paths:
+      - "apps/data/postgres/deployment.yaml"
+      - "apps/data/rabbitmq/deployment.yaml"
+      - "addons/pgadmin/deployment.yaml"
+    statement: "Third-party images start as root and write runtime files outside mounted volumes."

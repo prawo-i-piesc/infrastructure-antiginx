@@ -17,6 +17,8 @@ spec:
     spec:
       securityContext:
           runAsUser: 0
+          seccompProfile:
+            type: RuntimeDefault
       containers:
         - name: pgadmin
           image: dpage/pgadmin4:latest
@@ -45,6 +47,8 @@ spec:
           volumeMounts:
             - name: pgadmin-data
               mountPath: /var/lib/pgadmin
+          securityContext:
+            allowPrivilegeEscalation: false
       volumes:
         - name: pgadmin-data
           hostPath:
