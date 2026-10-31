@@ -1,0 +1,53 @@
+name: Security Verification
+run-name: >-
+  ${{
+      github.event_name == 'pull_request'
+      && format('Security Verification for CI: PR #{0} -> {1}', github.event.number, github.event.pull_request.title)
+      ||
+      github.event_name == 'push'
+      && format('Security Verification for CI: Merge -> {0}', github.event.head_commit.message)
+  }}
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened]
+    push:
+        branches: ["main"]
+
+permissions:
+    contents: read
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+    security-ci-test:
+        name: Trivy Scan
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+
+        steps:
+        - name: 📥 Git -- Checkout repository
+          uses: actions/checkout@v7
+
+        - name: 🧪 Trivy -- Test Secret -> File System
+          uses: aquasecurity/trivy-action@v0.36.0
+          with:
+            scan-type: fs
+            scan-ref: .
+            scanners: secret
+            format: table
+            exit-code: "1"
+
+        - name: 📋 Trivy -- Report Misconfig -> Manifests
+          uses: aquasecurity/trivy-action@v0.36.0
+          with:
+            scan-type: fs
+            scan-ref: .
+            scanners: misconfig
+            skip-dirs: addons/scan-targets
+            skip-setup-trivy: true
+            format: table
+            severity: CRITICAL,HIGH
+            exit-code: "0"

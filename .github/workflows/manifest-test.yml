@@ -1,0 +1,93 @@
+name: Manifest Verification
+run-name: >-
+  ${{
+      github.event_name == 'pull_request'
+      && format('Manifest Verification for CI: PR #{0} -> {1}', github.event.number, github.event.pull_request.title)
+      ||
+      github.event_name == 'push'
+      && format('Manifest Verification for CI: Merge -> {0}', github.event.head_commit.message)
+  }}
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened]
+    push:
+        branches: ["main"]
+
+permissions:
+    contents: read
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+    HELM_VERSION: v3.21.4
+    KUBERNETES_VERSION: v1.36.4
+    KUBECONFORM_VERSION: v0.8.0
+
+jobs:
+    manifest-ci-test:
+        name: Render & Validate (${{ matrix.overlay }})
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+
+        strategy:
+            fail-fast: false
+            matrix:
+                overlay: [dev, prod]
+
+        steps:
+        - name: 📥 Git -- Checkout repository
+          uses: actions/checkout@v7
+
+        - name: 🔑 Secrets -- Generate from Templates
+          run: |
+            for f in overlays/${{ matrix.overlay }}/secrets/*/*.example.yaml; do
+                cp "$f" "${f%.example.yaml}.yaml"
+            done
+
+        - name: 📦 Helm -- Install
+          run: |
+            curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz" \
+              | sudo tar xz -C /usr/local/bin --strip-components=1 linux-amd64/helm
+            helm version --short
+
+        - name: 📦 Kubectl -- Install
+          run: |
+            curl -fsSL -o kubectl "https://dl.k8s.io/release/${KUBERNETES_VERSION}/bin/linux/amd64/kubectl"
+            sudo install -m 0755 kubectl /usr/local/bin/kubectl && rm kubectl
+            kubectl version --client
+
+        - name: 📦 Kubeconform -- Install
+          run: |
+            curl -fsSL "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz" \
+              | sudo tar xz -C /usr/local/bin kubeconform
+
+        - name: 🧪 Kustomize -- Test Overlay Render
+          run: |
+            echo "⚙️ Rendering overlay '${{ matrix.overlay }}'..."
+            if kubectl kustomize --enable-helm "overlays/${{ matrix.overlay }}" > rendered.yaml; then
+                echo ""
+                echo "✅ Overlay rendered successfully ($(grep -c '^kind:' rendered.yaml) resources)."
+            else
+                echo ""
+                echo "❌ Kustomize build failed. Please fix the errors above."
+                exit 1
+            fi
+
+        - name: 🧪 Kubeconform -- Test Schemas
+          run: |
+            echo "⚙️ Validating rendered manifests against Kubernetes schemas:"
+            if kubeconform -strict -summary -ignore-missing-schemas \
+                -kubernetes-version "${KUBERNETES_VERSION#v}" \
+                -schema-location default \
+                -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+                rendered.yaml; then
+                echo ""
+                echo "✅ All manifests are valid."
+            else
+                echo ""
+                echo "❌ Invalid manifests found."
+                exit 1
+            fi

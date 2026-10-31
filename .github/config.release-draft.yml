@@ -2,7 +2,7 @@ name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
 target-branch: main
 
-categories:    
+categories:
   - title: '🚀 Features'
     labels:
       - 'feature'
@@ -15,7 +15,7 @@ categories:
       - 'bug'
 
   - title: '🧰 Maintenance'
-    labels: 
+    labels:
       - 'chore'
       - 'documentation'
       - 'dependencies'
