@@ -1,7 +1,7 @@
 name: PR Automation
 run-name: >-
-    ${{ 
-        github.event_name == 'pull_request' 
+    ${{
+        github.event_name == 'pull_request'
         && format('Configure PR Metadata: PR #{0} -> {1}', github.event.number, github.event.pull_request.title)
     }}
 

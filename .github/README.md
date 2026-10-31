@@ -37,7 +37,7 @@ Before deploying, ensure you have the following installed:
 *   A running Kubernetes cluster (this setup targets **k3s**, but any cluster works).
 *   `kubectl` command-line tool configured to communicate with your cluster.
 *   `kapp` for declarative deployments and diffing.
-*   `helm` — required because the monitoring stack is rendered with `--enable-helm`.
+*   `helm` **v3** — required because the monitoring stack is rendered with `--enable-helm`. Helm v4 is not supported by `kustomize` yet.
  
 #### Secrets Management
 Secrets live in the overlay, so each environment holds its own values. \
