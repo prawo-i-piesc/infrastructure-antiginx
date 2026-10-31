@@ -3,3 +3,4 @@ kind: Kustomization
 namespace: data
 resources:
   - ingress.yaml
+  - networkpolicy.yaml

@@ -9,3 +9,4 @@ resources:
   - webgoat/service.yaml
   - dvwa/deployment.yaml
   - dvwa/service.yaml
+  - networkpolicy.yaml
