@@ -50,5 +50,5 @@ spec:
       volumes:
         - name: rabbitmq-data
           hostPath:
-            path: /home/debian/data-antiginx/rabbitmq-data
+            path: /var/lib/antiginx/rabbitmq
             type: DirectoryOrCreate

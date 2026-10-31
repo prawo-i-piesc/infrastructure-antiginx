@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup-cronjob
+  namespace: data
+spec:
+  schedule: "0 3 * * *"
+  timeZone: Europe/Warsaw
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: postgres-backup
+              image: postgres:18-alpine
+              envFrom:
+                - secretRef:
+                    name: data-secrets
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  set -e; umask 077; export PGPASSWORD="$POSTGRES_PASSWORD"
+                  FILE="/backups/${POSTGRES_DB}-$(date +%F).dump"
+                  pg_dump -h postgres-service -U "$POSTGRES_USER" -Fc -f "$FILE.tmp" "$POSTGRES_DB" && mv "$FILE.tmp" "$FILE"
+                  find /backups -name "*.dump*" -mtime +7 -delete
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              volumeMounts:
+                - name: backups
+                  mountPath: /backups
+          volumes:
+            - name: backups
+              hostPath:
+                path: /var/backups/antiginx/postgres
+                type: DirectoryOrCreate
