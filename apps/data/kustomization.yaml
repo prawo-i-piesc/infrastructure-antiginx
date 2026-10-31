@@ -3,9 +3,8 @@ kind: Kustomization
 namespace: data
 resources:
   - namespace.yaml
-  - postgres/pvc.yaml
   - postgres/deployment.yaml
   - postgres/service.yaml
-  - rabbitmq/pvc.yaml
+  - postgres-backup/cronjob.yaml
   - rabbitmq/deployment.yaml
   - rabbitmq/service.yaml

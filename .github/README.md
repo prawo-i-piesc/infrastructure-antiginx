@@ -16,17 +16,18 @@ This repository contains the Kubernetes infrastructure manifests for the **Antig
  
 The repository is organized following Kubernetes and Kustomize best practices:
  
-*   **`apps/`**: Base manifests (`Deployment`, `Service`, `PVC`, `Namespace`) that are deployed to **every** environment unchanged:
-    *   `antiginx/`: Core microservices including `frontend`, `backend`, and `engine`.
-    *   `data/`: Persistent stateful services and message brokers like `postgres` and `rabbitmq`.
+*   **`apps/`**: Base manifests (`Deployment`, `Service`, `Ingress`, `CronJob`, `Namespace`) that are deployed to **every** environment unchanged:
+    *   `antiginx/`: Core microservices including `frontend`, `backend`, and `daemon`.
+    *   `data/`: Persistent stateful services and message brokers like `postgres` and `rabbitmq`, plus a daily `postgres` backup job.
+    *   `ingress/`: k3s `Traefik` configuration (HTTPS redirect and Let's Encrypt certificates via DuckDNS).
     *   `monitoring/`: Observability stack based on the `kube-prometheus-stack` Helm chart.
 *   **`addons/`**: Optional, self-contained features enabled per environment. Currently used by `dev` only:
     *   `pgadmin/`: Web UI for `postgres`, deployed into the `data` namespace.
-    *   `rabbitmq-management/`: `LoadBalancer` service exposing the RabbitMQ management panel.
+    *   `rabbitmq-management/`: `Ingress` exposing the RabbitMQ management panel.
     *   `scan-targets/`: Intentionally vulnerable targets such as OWASP `juice-shop`, `webgoat` and `dvwa`.
 *   **`overlays/`**: Environment-specific configuration, image tags, patches and secrets. Defined overlays are `dev` and `prod`.
 *   **`cluster/`**: Deployment scripts (`apply.sh`, `delete.sh`) wrapping `kustomize` and `kapp`.
-*   **`.github/`**: CI/CD automation, including GitHub Actions workflows (like `pr-automation.yml`), Dependabot setup, and repository configurations.
+*   **`.github/`**: CI/CD automation, Dependabot setup, and repository configurations. GitHub Actions workflows validate rendered manifests (`kubeconform`), lint YAML and workflows (`yamllint`, `actionlint`), scan for secrets and misconfigurations (`Trivy`), and automate pull requests and release drafts.
  
 <br>
  
@@ -68,6 +69,28 @@ To tear an environment down:
 ```bash
 ./delete.sh dev
 ```
+ 
+#### Data & Backups
+ 
+Stateful services store their data on the node using `hostPath` volumes in `/var/lib/antiginx/`.
+ 
+The `postgres` database is backed up every day at **03:00** (`Europe/Warsaw`) by the `postgres-backup-cronjob`. \
+Backups are written to `/var/backups/antiginx/postgres/` as `<database>-<YYYY-MM-DD>.dump` (`pg_dump` custom format) and kept for **7 days**.
+ 
+To run a backup manually:
+ 
+```bash
+sudo kubectl create job -n data --from=cronjob/postgres-backup-cronjob postgres-backup-manual
+```
+ 
+To restore a backup into an **empty** database:
+ 
+```bash
+sudo cat /var/backups/antiginx/postgres/<FILE>.dump \
+  | sudo kubectl exec -i -n data deploy/postgres-deployment -- pg_restore -U <POSTGRES_USER> -d <POSTGRES_DB>
+```
+ 
+**Important:** Backups are stored on the same node as the database. Copy them off the server regularly.
  
 <br>
  

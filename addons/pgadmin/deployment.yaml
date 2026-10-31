@@ -52,5 +52,5 @@ spec:
       volumes:
         - name: pgadmin-data
           hostPath:
-            path: /home/debian/data-antiginx/pgadmin-data
+            path: /var/lib/antiginx/pgadmin
             type: DirectoryOrCreate
