@@ -54,8 +54,8 @@ replacements:
 
 images:
   - name: ghcr.io/prawo-i-piesc/daemon-antiginx
-    newTag: 0.0.16
+    newTag: 0.0.18
   - name: ghcr.io/prawo-i-piesc/backend-antiginx
-    newTag: 0.6.21
-  - name: ghcr.io/prawo-i-piesc/frontend-antiginx
     newTag: 0.6.24
+  - name: ghcr.io/prawo-i-piesc/frontend-antiginx
+    newTag: 0.6.28
