@@ -9,7 +9,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: pgadmin.antiginx-dev.duckdns.org
+    - host: pgadmin.DOMAIN
       http:
         paths:
           - path: /

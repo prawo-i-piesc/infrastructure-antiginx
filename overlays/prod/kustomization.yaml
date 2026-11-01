@@ -7,10 +7,55 @@ resources:
   - ../../apps/monitoring
   - ../../apps/ingress
 
+configMapGenerator:
+  - name: domain
+    envs:
+      - domain.env
+    options:
+      disableNameSuffixHash: true
+      annotations:
+        config.kubernetes.io/local-config: "true"
+
+replacements:
+  - source:
+      kind: ConfigMap
+      name: domain
+      fieldPath: data.DOMAIN
+    targets:
+      - select:
+          kind: Ingress
+          name: frontend-ingress
+        fieldPaths:
+          - spec.rules.0.host
+      - select:
+          kind: Ingress
+          name: grafana-ingress
+        fieldPaths:
+          - spec.rules.0.host
+        options:
+          delimiter: "grafana."
+          index: 1
+      - select:
+          kind: ConfigMap
+          name: backend-config
+        fieldPaths:
+          - data.PUBLIC_BASE_URL
+        options:
+          delimiter: "https://"
+          index: 1
+      - select:
+          kind: ConfigMap
+          name: backend-config
+        fieldPaths:
+          - data.GRAFANA_URL
+        options:
+          delimiter: "https://grafana."
+          index: 1
+
 images:
   - name: ghcr.io/prawo-i-piesc/daemon-antiginx
-    newTag: 0.0.16
+    newTag: 0.0.18
   - name: ghcr.io/prawo-i-piesc/backend-antiginx
-    newTag: 0.6.21
-  - name: ghcr.io/prawo-i-piesc/frontend-antiginx
     newTag: 0.6.24
+  - name: ghcr.io/prawo-i-piesc/frontend-antiginx
+    newTag: 0.6.28

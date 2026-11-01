@@ -22,13 +22,15 @@ spec:
               image: postgres:18-alpine
               envFrom:
                 - secretRef:
-                    name: data-secrets
+                    name: postgres-secrets
               command: ["/bin/sh", "-c"]
               args:
                 - |
                   set -e; umask 077; export PGPASSWORD="$POSTGRES_PASSWORD"
                   FILE="/backups/${POSTGRES_DB}-$(date +%F).dump"
-                  pg_dump -h postgres-service -U "$POSTGRES_USER" -Fc -f "$FILE.tmp" "$POSTGRES_DB" && mv "$FILE.tmp" "$FILE"
+                  for i in $(seq 30); do pg_isready -q -h postgres-service && break; sleep 2; done
+                  pg_dump -h postgres-service -U "$POSTGRES_USER" -Fc -f "$FILE.tmp" "$POSTGRES_DB"
+                  mv "$FILE.tmp" "$FILE"
                   find /backups -name "*.dump*" -mtime +7 -delete
               securityContext:
                 allowPrivilegeEscalation: false

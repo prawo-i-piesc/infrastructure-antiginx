@@ -25,7 +25,7 @@ The repository is organized following Kubernetes and Kustomize best practices:
     *   `pgadmin/`: Web UI for `postgres`, deployed into the `data` namespace.
     *   `rabbitmq-management/`: `Ingress` exposing the RabbitMQ management panel.
     *   `scan-targets/`: Intentionally vulnerable targets such as OWASP `juice-shop`, `webgoat` and `dvwa`.
-*   **`overlays/`**: Environment-specific configuration, image tags, patches and secrets. Defined overlays are `dev` and `prod`.
+*   **`overlays/`**: Environment-specific domain, image tags and secrets. Defined overlays are `dev` and `prod`.
 *   **`cluster/`**: Deployment scripts (`apply.sh`, `delete.sh`) wrapping `kustomize` and `kapp`.
 *   **`.github/`**: CI/CD automation, Dependabot setup, and repository configurations. GitHub Actions workflows validate rendered manifests (`kubeconform`), lint YAML and workflows (`yamllint`, `actionlint`), scan for secrets and misconfigurations (`Trivy`), and automate pull requests and release drafts.
  
@@ -40,17 +40,20 @@ Before deploying, ensure you have the following installed:
 *   `kapp` for declarative deployments and diffing.
 *   `helm` **v3** — required because the monitoring stack is rendered with `--enable-helm`. Helm v4 is not supported by `kustomize` yet.
  
-#### Secrets Management
-Secrets live in the overlay, so each environment holds its own values. \
-Real secret files are **git-ignored**; only `*.example.yaml` templates are committed.
+#### Configuration & Secrets
+Every value is a `KEY=value` file, like a Docker Compose `.env` file:
  
-Before the first deployment, create the actual files from the templates:
+*   `apps/**/config.env`, `addons/**/config.env`: non-secret settings of an app, the same in every environment (committed).
+*   `overlays/<env>/secrets/*.env`: secrets and per-environment values (**git-ignored**).
+*   `overlays/<env>/domain.env`: the environment's domain (**git-ignored**). It replaces every `DOMAIN` placeholder in ingress hosts and URLs.
+ 
+Only `*.env.example` templates are committed. Before the first deployment, create the actual files from the templates:
  
 ```bash
-for f in overlays/dev/secrets/*/*.example.yaml; do cp "$f" "${f%.example.yaml}.yaml"; done
+for f in overlays/dev/secrets/*.env.example overlays/dev/domain.env.example; do cp "$f" "${f%.example}"; done
 ```
  
-Then fill in every `<PLACEHOLDER>` value. \
+Then fill in every `<PLACEHOLDER>` value. Write values **without quotes**: quotes become part of the value. \
 **Important:** Do **not** commit actual passwords or keys to version control.
  
 #### Deployment
