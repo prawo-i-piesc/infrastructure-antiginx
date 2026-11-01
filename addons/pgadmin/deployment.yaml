@@ -24,21 +24,11 @@ spec:
           image: dpage/pgadmin4:latest
           ports:
             - containerPort: 8080
-          env:
-            - name: PGADMIN_LISTEN_PORT
-              value: "8080"
-            - name: PGADMIN_DISABLE_POSTFIX
-              value: "true"
-            - name: PGADMIN_DEFAULT_EMAIL
-              valueFrom:
-                secretKeyRef:
-                  name: pgadmin-secrets
-                  key: PGADMIN_DEFAULT_EMAIL
-            - name: PGADMIN_DEFAULT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: pgadmin-secrets
-                  key: PGADMIN_DEFAULT_PASSWORD
+          envFrom:
+            - configMapRef:
+                name: pgadmin-config
+            - secretRef:
+                name: pgadmin-secrets
           resources:
             requests:
               memory: "128Mi"

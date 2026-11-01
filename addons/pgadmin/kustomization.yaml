@@ -6,3 +6,8 @@ resources:
   - service.yaml
   - ingress.yaml
   - networkpolicy.yaml
+
+configMapGenerator:
+  - name: pgadmin-config
+    envs:
+      - config.env

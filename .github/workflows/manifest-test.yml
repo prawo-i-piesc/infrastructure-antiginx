@@ -43,8 +43,8 @@ jobs:
 
         - name: 🔑 Secrets -- Generate from Templates
           run: |
-            for f in overlays/${{ matrix.overlay }}/secrets/*/*.example.yaml; do
-                cp "$f" "${f%.example.yaml}.yaml"
+            for f in overlays/${{ matrix.overlay }}/secrets/*.env.example overlays/${{ matrix.overlay }}/domain.env.example; do
+                cp "$f" "${f%.example}"
             done
 
         - name: 📦 Helm -- Install

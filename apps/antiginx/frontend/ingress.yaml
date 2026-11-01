@@ -9,7 +9,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: antiginx.duckdns.org
+    - host: DOMAIN
       http:
         paths:
           - path: /

@@ -10,3 +10,14 @@ resources:
   - frontend/deployment.yaml
   - frontend/service.yaml
   - frontend/ingress.yaml
+
+configMapGenerator:
+  - name: backend-config
+    envs:
+      - backend/config.env
+  - name: daemon-config
+    envs:
+      - daemon/config.env
+  - name: frontend-config
+    envs:
+      - frontend/config.env
