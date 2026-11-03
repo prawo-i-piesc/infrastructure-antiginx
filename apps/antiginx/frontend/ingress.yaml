@@ -12,6 +12,15 @@ spec:
     - host: DOMAIN
       http:
         paths:
+          # Live scan view. WebSockets go straight to the backend: the frontend
+          # reaches it through a Next route handler, which cannot pass an upgrade.
+          - path: /api/live
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-service
+                port:
+                  number: 4000
           - path: /
             pathType: Prefix
             backend:
