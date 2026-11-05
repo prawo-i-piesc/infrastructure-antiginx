@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: daemon-servicemonitor
+  namespace: antiginx
+  labels:
+    release: prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: daemon
+  endpoints:
+    - port: daemon-port
+      path: /metrics

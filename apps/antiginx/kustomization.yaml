@@ -7,9 +7,11 @@ resources:
   - backend/service.yaml
   - daemon/deployment.yaml
   - daemon/service.yaml
+  - daemon/servicemonitor.yaml
   - frontend/deployment.yaml
   - frontend/service.yaml
   - frontend/ingress.yaml
+  - networkpolicy.yaml
 
 configMapGenerator:
   - name: backend-config

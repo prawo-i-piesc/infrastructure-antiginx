@@ -21,6 +21,9 @@ spec:
           secretKeyRef:
             name: traefik-secrets
             key: BASE_DOMAIN
+    service:
+      spec:
+        externalTrafficPolicy: Local
     persistence:
       enabled: true
       path: /data

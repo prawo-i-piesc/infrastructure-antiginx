@@ -21,7 +21,7 @@ spec:
             type: RuntimeDefault
       containers:
         - name: pgadmin
-          image: dpage/pgadmin4:latest
+          image: dpage/pgadmin4:9.19
           ports:
             - containerPort: 8080
           envFrom:
