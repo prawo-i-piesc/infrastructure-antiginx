@@ -22,8 +22,16 @@ spec:
             name: traefik-secrets
             key: BASE_DOMAIN
     service:
-      spec:
-        externalTrafficPolicy: Local
+      type: ClusterIP
+    ports:
+      web:
+        hostPort: 80
+      websecure:
+        hostPort: 443
+    updateStrategy:
+      rollingUpdate:
+        maxUnavailable: 1
+        maxSurge: 0
     persistence:
       enabled: true
       path: /data
