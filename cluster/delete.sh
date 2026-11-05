@@ -1,10 +1,11 @@
 #!/bin/bash
 set -euo pipefail
+cd "$(dirname "$0")"
 
  ENV="${1:-}"
 
  if [[ -z "$ENV" ]]; then
-    echo "❌ Use: ./apply.sh <dev|prod>"
+    echo "❌ Use: ./delete.sh <dev|prod>"
     exit 1
 fi
 

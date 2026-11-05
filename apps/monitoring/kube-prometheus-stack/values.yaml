@@ -12,6 +12,11 @@ grafana:
   sidecar:
     datasources:
       url: "http://prometheus-operated.monitoring:9090"
+  persistence:
+    enabled: true
+    existingClaim: grafana-pvc
+  deploymentStrategy:
+    type: Recreate
 
 kubeControllerManager:
   enabled: false
@@ -25,3 +30,26 @@ kubeProxy:
 prometheus:
   prometheusSpec:
     retention: 10d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: ""
+          volumeName: prometheus-pv
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+    initContainers:
+      - name: chown-data
+        image: busybox:1.38.0
+        command: ["sh", "-c", "mkdir -p /data/prometheus-db && chown -R 1000:2000 /data"]
+        securityContext:
+          runAsNonRoot: false
+          runAsUser: 0
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+            add: ["CHOWN", "DAC_OVERRIDE"]
+        volumeMounts:
+          - name: prometheus-prometheus-stack-kube-prom-prometheus-db
+            mountPath: /data

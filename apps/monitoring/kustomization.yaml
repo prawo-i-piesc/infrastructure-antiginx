@@ -4,6 +4,7 @@ namespace: monitoring
 resources:
   - namespace.yaml
   - kube-prometheus-stack/ingress.yaml
+  - kube-prometheus-stack/storage.yaml
 
 helmCharts:
   - name: kube-prometheus-stack
