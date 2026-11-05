@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: daemon-service
   namespace: antiginx
+  labels:
+    app: daemon
 spec:
   type: ClusterIP
   selector:
