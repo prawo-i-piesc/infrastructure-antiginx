@@ -25,6 +25,7 @@ env:
     HELM_VERSION: v3.21.4
     KUBERNETES_VERSION: v1.36.4
     KUBECONFORM_VERSION: v0.8.0
+    KUBE_LINTER_VERSION: v0.8.3
 
 jobs:
     manifest-ci-test:
@@ -89,5 +90,25 @@ jobs:
             else
                 echo ""
                 echo "❌ Invalid manifests found."
+                exit 1
+            fi
+
+        - name: 📦 Kube-linter -- Install
+          run: |
+            curl -fsSL "https://github.com/stackrox/kube-linter/releases/download/${KUBE_LINTER_VERSION}/kube-linter-linux.tar.gz" \
+              | sudo tar xz -C /usr/local/bin kube-linter
+            kube-linter version
+
+        - name: 🧪 Kube-linter -- Test Best Practices
+          run: |
+            # Only our workloads: charts (monitoring, kube-system) and the intentionally vulnerable scan-targets are skipped.
+            yq 'select(.metadata.namespace == "antiginx" or .metadata.namespace == "data")' rendered.yaml > lint.yaml
+            echo "⚙️ Linting $(grep -c '^kind:' lint.yaml) resources with kube-linter:"
+            if kube-linter lint --config .kube-linter.yaml lint.yaml; then
+                echo ""
+                echo "✅ No best-practice violations found."
+            else
+                echo ""
+                echo "❌ Best-practice violations found. Fix them or add an ignore-check annotation with a reason."
                 exit 1
             fi

@@ -3,6 +3,10 @@ kind: Deployment
 metadata:
   name: rabbitmq-deployment
   namespace: data
+  annotations:
+    ignore-check.kube-linter.io/run-as-non-root: "Official image starts as root and drops privileges itself"
+    ignore-check.kube-linter.io/no-read-only-root-fs: "Image writes runtime files outside mounted volumes"
+    ignore-check.kube-linter.io/drop-net-raw-capability: "Third-party image, capabilities left at image defaults"
 spec:
   replicas: 1
   selector:

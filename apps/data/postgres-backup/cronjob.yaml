@@ -3,6 +3,8 @@ kind: CronJob
 metadata:
   name: postgres-backup-cronjob
   namespace: data
+  annotations:
+    ignore-check.kube-linter.io/run-as-non-root: "pg_dump writes to a root-owned hostPath"
 spec:
   schedule: "0 3 * * *"
   timeZone: Europe/Warsaw

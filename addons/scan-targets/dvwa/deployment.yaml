@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: dvwa
-          image: kaakaww/dvwa-docker:latest
+          image: kaakaww/dvwa-docker:7fd960fa2a0b234414ccc31261d9f54a1f639146
           ports:
             - containerPort: 80
           resources:
