@@ -1,0 +1,127 @@
+name: E2E Verification
+run-name: >-
+  ${{
+      github.event_name == 'pull_request'
+      && format('E2E Verification for CI: PR #{0} -> {1}', github.event.number, github.event.pull_request.title)
+      ||
+      github.event_name == 'push'
+      && format('E2E Verification for CI: Merge -> {0}', github.event.head_commit.message)
+      ||
+      'E2E Verification for CI: Manual run'
+  }}
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened]
+    push:
+        branches: ["main"]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+    HELM_VERSION: v3.21.4
+    KUBERNETES_VERSION: v1.36.4
+    K3S_IMAGE: rancher/k3s:v1.36.4-k3s1
+    K3D_VERSION: v5.9.0
+    SCAN_TARGET: http://juice-shop-service.scan-targets.svc.cluster.local:3000
+
+jobs:
+    e2e-ci-test:
+        name: Deploy dev overlay & scan juice-shop
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+
+        steps:
+        - name: 📥 Git -- Checkout repository
+          uses: actions/checkout@v7
+
+        - name: 🔑 Secrets -- Generate test values
+          run: |
+            for f in overlays/dev/secrets/*.env.example overlays/dev/domain.env.example; do
+                cp "$f" "${f%.example}"
+            done
+            # Same placeholder -> same value in every file, so DATABASE_URL matches postgres.env.
+            sed -i -E \
+              -e "s|<TOTP_ENCRYPTION_KEY>|$(openssl rand -base64 32)|" \
+              -e "s|<BASE_DOMAIN>|example.duckdns.org|" \
+              -e "s|<[A-Z_]*EMAIL[A-Z_]*>|e2e@example.com|" \
+              -e 's|<([A-Z_]+)>|\L\1|g' \
+              overlays/dev/secrets/*.env
+
+        - name: 📦 Helm, Kubectl, k3d -- Install
+          run: |
+            curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz" \
+              | sudo tar xz -C /usr/local/bin --strip-components=1 linux-amd64/helm
+            curl -fsSL -o kubectl "https://dl.k8s.io/release/${KUBERNETES_VERSION}/bin/linux/amd64/kubectl"
+            sudo install -m 0755 kubectl /usr/local/bin/kubectl && rm kubectl
+            curl -fsSL -o k3d "https://github.com/k3d-io/k3d/releases/download/${K3D_VERSION}/k3d-linux-amd64"
+            sudo install -m 0755 k3d /usr/local/bin/k3d && rm k3d
+            helm version --short && kubectl version --client && k3d version
+
+        - name: 🐳 k3d -- Create k3s cluster
+          run: |
+            k3d cluster create e2e --image "${K3S_IMAGE}" --wait --timeout 5m
+            kubectl get nodes -o wide
+
+        - name: 🚀 Kustomize -- Render & Apply dev overlay
+          run: |
+            kubectl kustomize --enable-helm overlays/dev > rendered.yaml
+            # Traefik/ACME config is skipped: CI has no DuckDNS token and the test talks to the backend directly.
+            yq -i 'select(.kind != "HelmChartConfig")' rendered.yaml
+            yq 'select(.kind == "CustomResourceDefinition")' rendered.yaml | kubectl apply --server-side -f -
+            kubectl wait --for=condition=Established crd --all --timeout=2m
+            kubectl apply --server-side -f rendered.yaml
+
+        - name: ⏳ Kubernetes -- Wait for workloads
+          run: |
+            for ns in data antiginx scan-targets; do
+                echo "⚙️ Waiting for deployments in '${ns}'..."
+                kubectl wait --for=condition=Available deployment --all -n "${ns}" --timeout=15m
+            done
+            kubectl get pods -A
+
+        - name: 🧪 Antiginx -- Scan juice-shop end to end
+          run: |
+            kubectl -n antiginx port-forward svc/backend-service 4000:4000 >/dev/null 2>&1 &
+            sleep 5
+
+            curl -sS -X POST localhost:4000/api/freescans \
+              -H 'Content-Type: application/json' \
+              -d "{\"target_url\":\"${SCAN_TARGET}\"}" | tee submit.json
+            echo ""
+            ID=$(jq -r '.scanId // empty' submit.json)
+            [[ -n "$ID" ]] || { echo "❌ Scan was not accepted."; exit 1; }
+
+            for _ in $(seq 60); do
+                curl -fsS "localhost:4000/api/freescans/${ID}" > scan.json
+                STATUS=$(jq -r '.status' scan.json)
+                RESULTS=$(jq '.results | length' scan.json)
+                echo "⚙️ status=${STATUS} results=${RESULTS}"
+                [[ "$STATUS" == "COMPLETED" || "$STATUS" == "FAILED" ]] && break
+                sleep 10
+            done
+
+            if [[ "$STATUS" == "COMPLETED" && "$RESULTS" -gt 0 ]]; then
+                echo ""
+                echo "✅ Scan completed with ${RESULTS} results."
+            else
+                echo ""
+                echo "❌ Scan ended with status '${STATUS}' and ${RESULTS} results."
+                exit 1
+            fi
+
+        - name: 🔍 Kubernetes -- Dump state on failure
+          if: failure()
+          run: |
+            kubectl get pods -A -o wide || true
+            kubectl get events -A --sort-by=.lastTimestamp | tail -40 || true
+            for d in backend-deployment daemon-deployment; do
+                echo "----- ${d} -----"
+                kubectl logs -n antiginx "deploy/${d}" --tail=80 || true
+            done
