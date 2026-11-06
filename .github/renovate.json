@@ -1,0 +1,17 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "enabledManagers": ["kustomize", "kubernetes"],
+  "kubernetes": {
+    "managerFilePatterns": ["/^(apps|addons)/.+\\.yaml$/"]
+  },
+  "commitMessagePrefix": "deps(bump):",
+  "packageRules": [
+    {
+      "description": "A major upgrade needs a data migration, never propose it automatically",
+      "matchPackageNames": ["postgres", "rabbitmq"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
+  ]
+}
