@@ -58,4 +58,4 @@ images:
   - name: ghcr.io/prawo-i-piesc/backend-antiginx
     newTag: 0.6.29
   - name: ghcr.io/prawo-i-piesc/frontend-antiginx
-    newTag: 0.6.34
+    newTag: 0.6.35
