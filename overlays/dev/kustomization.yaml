@@ -75,6 +75,6 @@ images:
   - name: ghcr.io/prawo-i-piesc/daemon-antiginx
     newTag: 0.0.22
   - name: ghcr.io/prawo-i-piesc/backend-antiginx
-    newTag: 0.6.29
+    newTag: 0.6.31
   - name: ghcr.io/prawo-i-piesc/frontend-antiginx
-    newTag: 0.6.35
+    newTag: 0.6.38
