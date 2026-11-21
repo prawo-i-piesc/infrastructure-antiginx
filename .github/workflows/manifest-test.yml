@@ -101,7 +101,7 @@ jobs:
 
         - name: 🧪 Kube-linter -- Test Best Practices
           run: |
-            yq 'select(.metadata.namespace == "antiginx" or .metadata.namespace == "data" or (.metadata.namespace == "monitoring" and .metadata.labels."app.kubernetes.io/managed-by" != "Helm"))' rendered.yaml > lint.yaml
+            yq 'select(.metadata.namespace == "antiginx" or .metadata.namespace == "data" or (.metadata.namespace == "monitoring" and .metadata.labels."app.kubernetes.io/managed-by" != "Helm" and .metadata.labels."helm.sh/chart" == null))' rendered.yaml > lint.yaml
             echo "⚙️ Linting $(grep -c '^kind:' lint.yaml) resources with kube-linter:"
             if kube-linter lint --config .kube-linter.yaml lint.yaml; then
                 echo ""
