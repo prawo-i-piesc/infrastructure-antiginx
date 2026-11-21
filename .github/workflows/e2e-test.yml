@@ -84,6 +84,7 @@ jobs:
                 echo "⚙️ Waiting for deployments in '${ns}'..."
                 kubectl wait --for=condition=Available deployment --all -n "${ns}" --timeout=15m
             done
+            kubectl wait --for=condition=Available deployment/loki-deployment deployment/alloy-deployment -n monitoring --timeout=5m
             kubectl get pods -A
 
         - name: 🧪 Antiginx -- Scan juice-shop end to end

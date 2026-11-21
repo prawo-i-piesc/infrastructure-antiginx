@@ -17,6 +17,11 @@ grafana:
     existingClaim: grafana-pvc
   deploymentStrategy:
     type: Recreate
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      uid: loki
+      url: http://loki-service.monitoring:3100
 
 kubeControllerManager:
   enabled: false

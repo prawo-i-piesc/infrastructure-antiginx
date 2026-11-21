@@ -5,6 +5,18 @@ resources:
   - namespace.yaml
   - kube-prometheus-stack/ingress.yaml
   - kube-prometheus-stack/storage.yaml
+  - loki/deployment.yaml
+  - loki/service.yaml
+  - alloy/rbac.yaml
+  - alloy/deployment.yaml
+
+configMapGenerator:
+  - name: loki-config
+    files:
+      - loki/config.yaml
+  - name: alloy-config
+    files:
+      - alloy/config.alloy
 
 helmCharts:
   - name: kube-prometheus-stack
