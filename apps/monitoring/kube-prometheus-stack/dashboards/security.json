@@ -1,0 +1,780 @@
+{
+  "title": "Security",
+  "uid": "antiginx-security",
+  "tags": [
+    "antiginx"
+  ],
+  "timezone": "browser",
+  "refresh": "30s",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "schemaVersion": 39,
+  "links": [
+    {
+      "title": "Antiginx",
+      "type": "dashboards",
+      "tags": [
+        "antiginx"
+      ],
+      "asDropdown": false,
+      "includeVars": false,
+      "keepTime": true
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "name": "Wdrożenia",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "enable": true,
+        "iconColor": "purple",
+        "step": "1m",
+        "expr": "changes(kube_deployment_status_observed_generation{namespace=~\"antiginx|data\"}[2m]) > 0",
+        "titleFormat": "Wdrożenie: {{deployment}}",
+        "tagKeys": "deployment"
+      }
+    ]
+  },
+  "templating": {
+    "list": []
+  },
+  "panels": [
+    {
+      "type": "row",
+      "title": "Logowanie",
+      "id": 1,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "title": "Udane logowania",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({namespace=\"antiginx\", app=\"backend\"} |= \"[GIN]\" | regexp `\\| (?P<status>\\d{3}) \\| +\\S+ \\| +(?P<ip>\\S+) \\| (?P<method>[A-Z]+) +\"(?P<path>[^\"?]+)` | label_format path=`{{ regexReplaceAll \"[0-9a-f-]{16,}\" .path \":id\" }}` | path =~ \"/api/auth/(login|mfa/verify|webauthn/login/verify)\" | status == 200 [$__range])) or vector(0)",
+          "queryType": "instant"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "id": 2,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Nieudane logowania (401)",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({namespace=\"antiginx\", app=\"backend\"} |= \"[GIN]\" | regexp `\\| (?P<status>\\d{3}) \\| +\\S+ \\| +(?P<ip>\\S+) \\| (?P<method>[A-Z]+) +\"(?P<path>[^\"?]+)` | label_format path=`{{ regexReplaceAll \"[0-9a-f-]{16,}\" .path \":id\" }}` | path =~ \"/api/auth/(login|mfa/verify|webauthn/login/verify)\" | status == 401 [$__range])) or vector(0)",
+          "queryType": "instant"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 50
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "links": [
+        {
+          "title": "Logi: backend",
+          "url": "/d/antiginx-logs/logs?var-app=backend&${__url_time_range}"
+        }
+      ],
+      "description": "Złe hasło, zły kod MFA albo nieudany klucz passkey.",
+      "id": 3,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Zablokowane konta (423)",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({namespace=\"antiginx\", app=\"backend\"} |= \"[GIN]\" | regexp `\\| (?P<status>\\d{3}) \\| +\\S+ \\| +(?P<ip>\\S+) \\| (?P<method>[A-Z]+) +\"(?P<path>[^\"?]+)` | label_format path=`{{ regexReplaceAll \"[0-9a-f-]{16,}\" .path \":id\" }}` | status == 423 [$__range])) or vector(0)",
+          "queryType": "instant"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "links": [
+        {
+          "title": "Logi: backend",
+          "url": "/d/antiginx-logs/logs?var-app=backend&${__url_time_range}"
+        }
+      ],
+      "id": 4,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Blokady rate limitu (429)",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({namespace=\"antiginx\", app=\"backend\"} |= \"[GIN]\" | regexp `\\| (?P<status>\\d{3}) \\| +\\S+ \\| +(?P<ip>\\S+) \\| (?P<method>[A-Z]+) +\"(?P<path>[^\"?]+)` | label_format path=`{{ regexReplaceAll \"[0-9a-f-]{16,}\" .path \":id\" }}` | status == 429 [$__range])) or vector(0)",
+          "queryType": "instant"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 20
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "links": [
+        {
+          "title": "Logi: backend",
+          "url": "/d/antiginx-logs/logs?var-app=backend&${__url_time_range}"
+        }
+      ],
+      "id": 5,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Logowania wg wyniku",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (status) (count_over_time({namespace=\"antiginx\", app=\"backend\"} |= \"[GIN]\" | regexp `\\| (?P<status>\\d{3}) \\| +\\S+ \\| +(?P<ip>\\S+) \\| (?P<method>[A-Z]+) +\"(?P<path>[^\"?]+)` | label_format path=`{{ regexReplaceAll \"[0-9a-f-]{16,}\" .path \":id\" }}` | path =~ \"/api/auth/(login|mfa/verify|webauthn/login/verify)\" [$__auto]))",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 60,
+            "stacking": {
+              "mode": "normal"
+            }
+          },
+          "links": [
+            {
+              "title": "Logi: backend",
+              "url": "/d/antiginx-logs/logs?var-app=backend&${__url_time_range}"
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "200"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "401"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "orange"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "423"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "429"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "purple"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "id": 6,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      }
+    },
+    {
+      "type": "table",
+      "title": "IP z nieudanymi logowaniami i blokadami (zakres)",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, sum by (ip) (count_over_time({namespace=\"antiginx\", app=\"backend\"} |= \"[GIN]\" | regexp `\\| (?P<status>\\d{3}) \\| +\\S+ \\| +(?P<ip>\\S+) \\| (?P<method>[A-Z]+) +\"(?P<path>[^\"?]+)` | label_format path=`{{ regexReplaceAll \"[0-9a-f-]{16,}\" .path \":id\" }}` | path =~ \"/api/auth/.*\" | status =~ \"401|423|429\" [$__range])))",
+          "queryType": "instant",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {}
+      },
+      "options": {
+        "sortBy": [
+          {
+            "displayName": "Próby",
+            "desc": true
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "Value": "Próby",
+              "Value #A": "Próby"
+            }
+          }
+        }
+      ],
+      "id": 7,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      }
+    },
+    {
+      "type": "row",
+      "title": "Konta",
+      "id": 8,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "title": "Rejestracje",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({namespace=\"antiginx\", app=\"backend\"} |= \"[GIN]\" | regexp `\\| (?P<status>\\d{3}) \\| +\\S+ \\| +(?P<ip>\\S+) \\| (?P<method>[A-Z]+) +\"(?P<path>[^\"?]+)` | label_format path=`{{ regexReplaceAll \"[0-9a-f-]{16,}\" .path \":id\" }}` | path = \"/api/auth/register\" | status < 300 [$__range])) or vector(0)",
+          "queryType": "instant"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "id": 9,
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 14
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Prośby o reset hasła",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({namespace=\"antiginx\", app=\"backend\"} |= \"[GIN]\" | regexp `\\| (?P<status>\\d{3}) \\| +\\S+ \\| +(?P<ip>\\S+) \\| (?P<method>[A-Z]+) +\"(?P<path>[^\"?]+)` | label_format path=`{{ regexReplaceAll \"[0-9a-f-]{16,}\" .path \":id\" }}` | path = \"/api/auth/password/forgot\" [$__range])) or vector(0)",
+          "queryType": "instant"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "id": 10,
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 14
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Zmienione hasła (reset)",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({namespace=\"antiginx\", app=\"backend\"} |= \"[GIN]\" | regexp `\\| (?P<status>\\d{3}) \\| +\\S+ \\| +(?P<ip>\\S+) \\| (?P<method>[A-Z]+) +\"(?P<path>[^\"?]+)` | label_format path=`{{ regexReplaceAll \"[0-9a-f-]{16,}\" .path \":id\" }}` | path = \"/api/auth/password/reset\" | status < 300 [$__range])) or vector(0)",
+          "queryType": "instant"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "id": 11,
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 14
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Rejestracje i resety haseł w czasie",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({namespace=\"antiginx\", app=\"backend\"} |= \"[GIN]\" | regexp `\\| (?P<status>\\d{3}) \\| +\\S+ \\| +(?P<ip>\\S+) \\| (?P<method>[A-Z]+) +\"(?P<path>[^\"?]+)` | label_format path=`{{ regexReplaceAll \"[0-9a-f-]{16,}\" .path \":id\" }}` | path = \"/api/auth/register\" | status < 300 [$__auto]))",
+          "legendFormat": "rejestracje"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(count_over_time({namespace=\"antiginx\", app=\"backend\"} |= \"[GIN]\" | regexp `\\| (?P<status>\\d{3}) \\| +\\S+ \\| +(?P<ip>\\S+) \\| (?P<method>[A-Z]+) +\"(?P<path>[^\"?]+)` | label_format path=`{{ regexReplaceAll \"[0-9a-f-]{16,}\" .path \":id\" }}` | path = \"/api/auth/password/forgot\" [$__auto]))",
+          "legendFormat": "prośby o reset"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 60,
+            "stacking": {
+              "mode": "normal"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "id": 12,
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      }
+    },
+    {
+      "type": "row",
+      "title": "Podejrzany ruch",
+      "id": 13,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Odpowiedzi 4xx wg statusu",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (status) (count_over_time({namespace=\"antiginx\", app=\"backend\"} |= \"[GIN]\" | regexp `\\| (?P<status>\\d{3}) \\| +\\S+ \\| +(?P<ip>\\S+) \\| (?P<method>[A-Z]+) +\"(?P<path>[^\"?]+)` | label_format path=`{{ regexReplaceAll \"[0-9a-f-]{16,}\" .path \":id\" }}` | status >= 400 | status < 500 [$__auto]))",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 60,
+            "stacking": {
+              "mode": "normal"
+            }
+          },
+          "links": [
+            {
+              "title": "Logi: backend",
+              "url": "/d/antiginx-logs/logs?var-app=backend&${__url_time_range}"
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "id": 14,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 27
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Odmowy dostępu (403)",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(count_over_time({namespace=\"antiginx\", app=\"backend\"} |= \"[GIN]\" | regexp `\\| (?P<status>\\d{3}) \\| +\\S+ \\| +(?P<ip>\\S+) \\| (?P<method>[A-Z]+) +\"(?P<path>[^\"?]+)` | label_format path=`{{ regexReplaceAll \"[0-9a-f-]{16,}\" .path \":id\" }}` | status == 403 [$__range])) or vector(0)",
+          "queryType": "instant"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "links": [
+        {
+          "title": "Logi: backend",
+          "url": "/d/antiginx-logs/logs?var-app=backend&${__url_time_range}"
+        }
+      ],
+      "description": "Zalogowany użytkownik próbował wejść tam, gdzie nie ma uprawnień, np. do panelu admina.",
+      "id": 15,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 27
+      }
+    },
+    {
+      "type": "table",
+      "title": "Nieistniejące ścieżki – top 10 (404)",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, sum by (path) (count_over_time({namespace=\"antiginx\", app=\"backend\"} |= \"[GIN]\" | regexp `\\| (?P<status>\\d{3}) \\| +\\S+ \\| +(?P<ip>\\S+) \\| (?P<method>[A-Z]+) +\"(?P<path>[^\"?]+)` | label_format path=`{{ regexReplaceAll \"[0-9a-f-]{16,}\" .path \":id\" }}` | status == 404 [$__range])))",
+          "queryType": "instant",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {}
+      },
+      "options": {
+        "sortBy": [
+          {
+            "displayName": "Żądania",
+            "desc": true
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "Value": "Żądania",
+              "Value #A": "Żądania"
+            }
+          }
+        }
+      ],
+      "id": 16,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 35
+      }
+    },
+    {
+      "type": "table",
+      "title": "Najaktywniejsze IP – top 10",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "topk(10, sum by (ip) (count_over_time({namespace=\"antiginx\", app=\"backend\"} |= \"[GIN]\" | regexp `\\| (?P<status>\\d{3}) \\| +\\S+ \\| +(?P<ip>\\S+) \\| (?P<method>[A-Z]+) +\"(?P<path>[^\"?]+)` | label_format path=`{{ regexReplaceAll \"[0-9a-f-]{16,}\" .path \":id\" }}` [$__range])))",
+          "queryType": "instant",
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {}
+      },
+      "options": {
+        "sortBy": [
+          {
+            "displayName": "Żądania",
+            "desc": true
+          }
+        ]
+      },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "renameByName": {
+              "Value": "Żądania",
+              "Value #A": "Żądania"
+            }
+          }
+        }
+      ],
+      "id": 17,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 35
+      }
+    }
+  ]
+}
