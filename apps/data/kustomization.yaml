@@ -9,3 +9,7 @@ resources:
   - networkpolicy.yaml
   - rabbitmq/deployment.yaml
   - rabbitmq/service.yaml
+  - rabbitmq/servicemonitor.yaml
+  - postgres-exporter/deployment.yaml
+  - postgres-exporter/service.yaml
+  - postgres-exporter/servicemonitor.yaml

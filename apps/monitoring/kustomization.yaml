@@ -24,6 +24,7 @@ configMapGenerator:
       - kube-prometheus-stack/dashboards/logs.json
       - kube-prometheus-stack/dashboards/security.json
       - kube-prometheus-stack/dashboards/traffic.json
+      - kube-prometheus-stack/dashboards/data.json
     options:
       labels:
         grafana_dashboard: "1"

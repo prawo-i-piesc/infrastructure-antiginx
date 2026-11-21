@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: rabbitmq-service
   namespace: data
+  labels:
+    app: rabbitmq
 spec:
   type: ClusterIP
   selector:
@@ -14,3 +16,6 @@ spec:
     - name: rabbitmq-port-management
       port: 15672
       targetPort: 15672
+    - name: rabbitmq-port-metrics
+      port: 15692
+      targetPort: 15692

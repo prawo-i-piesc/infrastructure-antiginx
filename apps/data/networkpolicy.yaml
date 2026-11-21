@@ -19,6 +19,9 @@ spec:
         - podSelector:
             matchLabels:
               app: postgres-backup
+        - podSelector:
+            matchLabels:
+              app: postgres-exporter
       ports:
         - port: 5432
 ---
@@ -39,3 +42,9 @@ spec:
               kubernetes.io/metadata.name: antiginx
       ports:
         - port: 5672
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - port: 15692
