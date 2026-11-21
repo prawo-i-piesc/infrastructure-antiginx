@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alloy-deployment
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alloy
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: alloy
+    spec:
+      serviceAccountName: alloy
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 473
+        runAsGroup: 473
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: alloy
+          image: grafana/alloy:v1.22.0
+          args: ["run", "/etc/alloy/config.alloy", "--storage.path=/var/lib/alloy/data", "--disable-reporting"]
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: alloy-config
+              mountPath: /etc/alloy
+            - name: alloy-data
+              mountPath: /var/lib/alloy
+      volumes:
+        - name: alloy-config
+          configMap:
+            name: alloy-config
+        - name: alloy-data
+          emptyDir: {}

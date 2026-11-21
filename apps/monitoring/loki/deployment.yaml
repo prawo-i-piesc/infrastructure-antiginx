@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loki-deployment
+  namespace: monitoring
+  annotations:
+    ignore-check.kube-linter.io/run-as-non-root: "chown init container must run as root on a hostPath"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loki
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: loki
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: chown-data
+          image: busybox:1.38.0
+          command: ["chown", "-R", "10001:10001", "/loki"]
+          securityContext:
+            runAsNonRoot: false
+            runAsUser: 0
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+              add: ["CHOWN", "DAC_OVERRIDE"]
+          resources:
+            requests:
+              memory: "16Mi"
+              cpu: "10m"
+            limits:
+              memory: "64Mi"
+              cpu: "100m"
+          volumeMounts:
+            - name: loki-data
+              mountPath: /loki
+      containers:
+        - name: loki
+          image: grafana/loki:3.7.10
+          args: ["-config.file=/etc/loki/config.yaml"]
+          ports:
+            - containerPort: 3100
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3100
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: loki-config
+              mountPath: /etc/loki
+            - name: loki-data
+              mountPath: /loki
+      volumes:
+        - name: loki-config
+          configMap:
+            name: loki-config
+        - name: loki-data
+          hostPath:
+            path: /var/lib/antiginx/loki
+            type: DirectoryOrCreate
