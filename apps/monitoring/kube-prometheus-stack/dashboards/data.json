@@ -1,0 +1,683 @@
+{
+  "title": "Data",
+  "uid": "antiginx-data",
+  "tags": [
+    "antiginx"
+  ],
+  "timezone": "browser",
+  "refresh": "30s",
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "schemaVersion": 39,
+  "links": [
+    {
+      "title": "Antiginx",
+      "type": "dashboards",
+      "tags": [
+        "antiginx"
+      ],
+      "asDropdown": false,
+      "includeVars": false,
+      "keepTime": true
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "name": "Wdrożenia",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "enable": true,
+        "iconColor": "purple",
+        "step": "1m",
+        "expr": "changes(kube_deployment_status_observed_generation{namespace=~\"antiginx|data\"}[2m]) > 0",
+        "titleFormat": "Wdrożenie: {{deployment}}",
+        "tagKeys": "deployment"
+      }
+    ]
+  },
+  "templating": {
+    "list": []
+  },
+  "panels": [
+    {
+      "type": "row",
+      "title": "RabbitMQ",
+      "id": 1,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "title": "Wiadomości czekające",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rabbitmq_detailed_queue_messages{queue!~\"scan_dlq|scan_failed\"}) or vector(0)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "description": "Skany i wyniki, które czekają na przetworzenie. Stale rosnąca liczba = daemon lub backend nie nadąża.",
+      "id": 2,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Nieudane skany (DLQ)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rabbitmq_detailed_queue_messages{queue=~\"scan_dlq|scan_failed\"}) or vector(0)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "links": [
+        {
+          "title": "Logi: daemon",
+          "url": "/d/antiginx-logs/logs?var-app=daemon&${__url_time_range}"
+        }
+      ],
+      "description": "Wiadomości w kolejkach scan_dlq i scan_failed: skany, których nie udało się wykonać.",
+      "id": 3,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Konsumenci kolejek",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rabbitmq_detailed_queue_consumers) or vector(0)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "description": "Ilu odbiorców słucha kolejek. 0 przy scan_queue = żaden daemon nie pobiera skanów.",
+      "id": 4,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Połączenia",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rabbitmq_connections) or vector(0)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "id": 5,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Wiadomości w kolejkach",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (queue) (rabbitmq_detailed_queue_messages)",
+          "legendFormat": "{{queue}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "links": [
+            {
+              "title": "Logi: rabbitmq",
+              "url": "/d/antiginx-logs/logs?var-app=rabbitmq&${__url_time_range}"
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "id": 6,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Wiadomości w trakcie przetwarzania (unacked)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (queue) (rabbitmq_detailed_queue_messages_unacked)",
+          "legendFormat": "{{queue}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "links": [
+            {
+              "title": "Logi: rabbitmq",
+              "url": "/d/antiginx-logs/logs?var-app=rabbitmq&${__url_time_range}"
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "id": 7,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Konsumenci wg kolejki",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (queue) (rabbitmq_detailed_queue_consumers)",
+          "legendFormat": "{{queue}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "id": 8,
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      }
+    },
+    {
+      "type": "row",
+      "title": "Postgres",
+      "id": 9,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 19
+      },
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "title": "Postgres odpowiada",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(pg_up) or vector(0)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "description": "1 = exporter łączy się z bazą. 0 = baza nie odpowiada albo konto postgres_exporter nie istnieje.",
+      "id": 10,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 20
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Wykorzystanie połączeń",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(pg_stat_database_numbackends) / max(pg_settings_max_connections)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.7
+              },
+              {
+                "color": "red",
+                "value": 0.9
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "id": 11,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 20
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Rozmiar bazy aplikacji",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(pg_database_size_bytes{datname!~\"template.*|postgres\"})"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        }
+      },
+      "options": {
+        "colorMode": "value",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "id": 12,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 20
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Trafienia w cache (1 h)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(pg_stat_database_blks_hit[1h])) / (sum(rate(pg_stat_database_blks_hit[1h])) + sum(rate(pg_stat_database_blks_read[1h])))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.9
+              },
+              {
+                "color": "green",
+                "value": 0.99
+              }
+            ]
+          }
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "description": "Jaka część odczytów pochodzi z pamięci zamiast z dysku. Zdrowa baza: powyżej 99%.",
+      "id": 13,
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 20
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Transakcje na sekundę",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(pg_stat_database_xact_commit{datname!~\"template.*|postgres\"}[$__rate_interval]))",
+          "legendFormat": "zatwierdzone"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(rate(pg_stat_database_xact_rollback{datname!~\"template.*|postgres\"}[$__rate_interval]))",
+          "legendFormat": "wycofane"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "links": [
+            {
+              "title": "Logi: postgres",
+              "url": "/d/antiginx-logs/logs?var-app=postgres&${__url_time_range}"
+            }
+          ]
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "zatwierdzone"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "wycofane"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "id": 14,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Połączenia z bazą",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (datname) (pg_stat_database_numbackends{datname!~\"template.*|postgres\"})",
+          "legendFormat": "{{datname}}"
+        },
+        {
+          "refId": "B",
+          "expr": "max(pg_settings_max_connections)",
+          "legendFormat": "limit"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "links": [
+            {
+              "title": "Logi: postgres",
+              "url": "/d/antiginx-logs/logs?var-app=postgres&${__url_time_range}"
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "id": 15,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Rozmiar bazy",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (datname) (pg_database_size_bytes{datname!~\"template.*|postgres\"})",
+          "legendFormat": "{{datname}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "id": 16,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Deadlocki i konflikty",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(((increase(pg_stat_database_deadlocks{datname!~\"template.*|postgres\"}[1h]) and pg_stat_database_deadlocks{datname!~\"template.*|postgres\"} offset 1h) or pg_stat_database_deadlocks{datname!~\"template.*|postgres\"}))",
+          "legendFormat": "deadlocki / h"
+        },
+        {
+          "refId": "B",
+          "expr": "sum(((increase(pg_stat_database_conflicts{datname!~\"template.*|postgres\"}[1h]) and pg_stat_database_conflicts{datname!~\"template.*|postgres\"} offset 1h) or pg_stat_database_conflicts{datname!~\"template.*|postgres\"}))",
+          "legendFormat": "konflikty / h"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "links": [
+            {
+              "title": "Logi: postgres",
+              "url": "/d/antiginx-logs/logs?var-app=postgres&${__url_time_range}"
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "id": 17,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      }
+    }
+  ]
+}

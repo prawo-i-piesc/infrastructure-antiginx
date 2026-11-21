@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: rabbitmq-servicemonitor
+  namespace: data
+  labels:
+    release: prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: rabbitmq
+  endpoints:
+    - port: rabbitmq-port-metrics
+      path: /metrics
+    - port: rabbitmq-port-metrics
+      path: /metrics/detailed
+      params:
+        family: ["queue_coarse_metrics", "queue_consumer_count"]
