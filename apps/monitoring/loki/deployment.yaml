@@ -47,7 +47,7 @@ spec:
               mountPath: /loki
       containers:
         - name: loki
-          image: grafana/loki:3.7.10
+          image: grafana/loki:3.7.11
           args: ["-config.file=/etc/loki/config.yaml"]
           ports:
             - containerPort: 3100
