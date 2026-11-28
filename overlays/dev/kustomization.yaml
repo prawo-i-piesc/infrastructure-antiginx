@@ -23,6 +23,17 @@ replacements:
   - source:
       kind: ConfigMap
       name: domain
+      fieldPath: data.NODE_CIDR
+    targets:
+      - select:
+          kind: NetworkPolicy
+          name: daemon-egress-networkpolicy
+        fieldPaths:
+          - spec.egress.3.to.0.ipBlock.except.6
+
+  - source:
+      kind: ConfigMap
+      name: domain
       fieldPath: data.DOMAIN
     targets:
       - select:
